@@ -1,4 +1,4 @@
-package com.whitehatgaming.chessgame.model
+package com.whitehatgaming.chessgame.domain
 
 object Colors extends Enumeration {
   type Color = Value

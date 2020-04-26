@@ -1,5 +1,5 @@
 package com.whitehatgaming.chessgame
 
-package object model {
+package object domain {
   type BoardArray = Array[Array[Option[Piece]]]
 }
