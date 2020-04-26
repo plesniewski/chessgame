@@ -5,8 +5,10 @@ import scala.util.control.NoStackTrace
 package object chessgame {
 
 
-abstract class GameError(message:String) extends Throwable with NoStackTrace
+trait GameError extends Throwable with NoStackTrace {
+  def message:String
+}
 
-type Result[+T] = Either[GameError, T]
+type Result[T] = Either[Throwable, T]
 
 }

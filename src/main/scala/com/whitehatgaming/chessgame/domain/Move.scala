@@ -1,6 +1,12 @@
 package com.whitehatgaming.chessgame.domain
 import com.whitehatgaming.chessgame.domain.MoveTypes._
 
+object Move  {
+  def apply(array:Array[Int]):Move = {
+    Move(Point(array(0), array(1)), Point(array(2), (array(3))))
+  }
+}
+
 case class Move(from:Point, to:Point) {
   def xSize: Int = Math.abs(from.x - to.x)
   def ySize: Int = Math.abs(from.y - to.y)

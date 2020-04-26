@@ -38,31 +38,40 @@ trait Piece {
   def limitedMoveRange:Option[Int] = None
   def limitedCaptureRange:Option[Int] = None
 
+  def shortSign:String
+  override def toString:String = if (color == Colors.White) shortSign.toUpperCase else shortSign.toLowerCase
 
 }
 
 
-case class Pawn(color:Color) extends Piece with MovesOnlyForward with MovesHorizontally with CapturesVertically {
+case class Pawn(color:Color) extends Piece with MovesOnlyForward with MovesVertically with CapturesDiagonally {
   override def limitedMoveRange: Option[Int] = if (neverMoved) Some(2) else Some(1)
   override def limitedCaptureRange:Option[Int] = Some(1)
+  val shortSign = "p"
 }
 
 case class King(color:Color) extends Piece with CapturesAllTheWay with MovesAllTheWay {
   override def limitedMoveRange:Option[Int] = Some(1)
   override def limitedCaptureRange:Option[Int] = Some(1)
+  val shortSign = "k"
 }
 
-case class Bishop(color:Color) extends Piece with CapturesDiagonally with MovesDiagonally
+case class Bishop(color:Color) extends Piece with CapturesDiagonally with MovesDiagonally {
+  val shortSign = "b"
+}
 
+case class Queen(color:Color) extends Piece with CapturesAllTheWay with MovesAllTheWay {
+  val shortSign = "q"
+}
 
-case class Queen(color:Color) extends Piece with CapturesAllTheWay with MovesAllTheWay
-
-case class Rook(color:Color) extends Piece with CapturesVertically with CapturesHorizontally with MovesHorizontally with MovesVertically
+case class Rook(color:Color) extends Piece with CapturesVertically with CapturesHorizontally with MovesHorizontally with MovesVertically {
+  val shortSign = "r"
+}
 
 case class Knight(color:Color) extends Piece {
   override val specialMoveVectors: Seq[(Int, Int)] = Seq((1,2),(-1, 2),(1, -2), (-1, -2), (2, 1), (-2, 1), (2, -1), (-2, -1))
   override val specialCaptureVectors: Seq[(Int, Int)] = specialMoveVectors
-
+  val shortSign = "n"
 }
 
 

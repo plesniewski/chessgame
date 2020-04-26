@@ -9,4 +9,8 @@ object ResultUtils {
     if (value) Right(()) else Left(err)
   }
 
+  implicit class ResultExtensions[A](val underlying:Option[A]) extends AnyVal {
+    def toResult(e: => Throwable):Result[A] = underlying.map(Right(_)).getOrElse(Left(e))
+  }
+
 }

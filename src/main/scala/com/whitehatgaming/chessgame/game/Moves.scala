@@ -1,26 +1,40 @@
 package com.whitehatgaming.chessgame.game
 
-import com.whitehatgaming.chessgame._
-import com.whitehatgaming.chessgame.board. BoardService
-import com.whitehatgaming.chessgame.util.ResultUtils._
+import com.whitehatgaming.chessgame.Result
+import com.whitehatgaming.chessgame.board.Board
 import com.whitehatgaming.chessgame.domain._
 import com.whitehatgaming.chessgame.domain.Colors._
 import com.whitehatgaming.chessgame.domain.MoveTypes._
+import com.whitehatgaming.chessgame.util.ResultUtils._
 
+case class MoveResult(board: Board, inCheckBy:Option[PieceOnBoard], checksBy:Option[PieceOnBoard])
 
-class Moves(boardService: BoardService) extends MoveErrors {
+class MovesService(
+             validations: PiecesMovesValidations
+           ) extends MoveErrors {
 
-  private def anyVerticalObsticles(move:Move):Boolean = {
+  private def anyVerticalObsticles(board:Board, move:Move):Boolean = {
     val ys = Seq(move.from.y, move.to.y).sorted
-    boardService.isColumnOccupied(move.from.x, ys.head + 1, ys.last - 1)
+    board.isColumnOccupied(move.from.x, ys.head + 1, ys.last - 1)
   }
 
-  private def anyHorizontalObsticles(move:Move):Boolean = {
+  private def anyHorizontalObsticles(board:Board,move:Move):Boolean = {
     val xs = Seq(move.from.x, move.to.x).sorted
-    boardService.isRowOccupied(move.from.y, xs.head + 1, xs.last - 1)
+    board.isRowOccupied(move.from.y, xs.head + 1, xs.last - 1)
   }
 
-  private def anyDiagonalObsticles(move:Move):Boolean = {
+  def getPiece(board:Board,move:Move, color:Color): Result[Piece] = {
+    board.get(move.from).filter(_.color == color).toResult(MoveError(s"$color piece not found on given position"))
+  }
+  def isCapture(board:Board,move:Move, player:Color):Result[Boolean] = {
+    board.get(move.to) match {
+      case Some(piece) if piece.color == player => Left(MoveError("Cannot take own player"))
+      case Some(_) => Right(true)
+      case None => Right(false)
+    }
+  }
+
+  private def anyDiagonalObsticles(board:Board,move:Move):Boolean = {
     ( for(i <- 1 until move.xSize) yield {
       val point = if (move.from.x < move.to.x) {
         val m = if (move.from.y < move.to.y) i else -i
@@ -29,77 +43,60 @@ class Moves(boardService: BoardService) extends MoveErrors {
         val m = if (move.to.y < move.from.y) i else -i
         Point(move.to.x + i, move.to.y + m)
       }
-      boardService.isSquareOccupied(point)
+      board.isSquareOccupied(point)
     }).contains(true)
   }
 
-    def isTheWayClear(move:Move): Boolean = {
+    def isTheWayClear(board:Board, move:Move): Boolean = {
       move.isOneSquare ||
         (move.moveType match {
-        case Vertical => !anyVerticalObsticles(move)
-        case Horizontal => !anyHorizontalObsticles(move)
-        case Diagonal => !anyDiagonalObsticles(move)
+        case Vertical => !anyVerticalObsticles(board, move)
+        case Horizontal => !anyHorizontalObsticles(board, move)
+        case Diagonal => !anyDiagonalObsticles(board, move)
         case _ => true
       })
-
    }
 
-  private def isPieceMovingForward(piece:Piece, move:Move) = {
-    piece.color == White && move.isUp || piece.color == Black && move.isDown
+  def checkObstacles(board:Board, move:Move): Result[Unit] = {
+    validate(isTheWayClear(board, move), MoveError("Can't move, something in the way"))
   }
 
-  private def isMoveRangeValid(piece:Piece, move:Move) = {
-    piece.limitedMoveRange.forall(limit => {
-      move.cleanRange.exists(_ < limit + 1)
-    })
+
+  def checkCheckOn(board:Board,color:Color):Result[Option[PieceOnBoard]] = {
+    board.getKing(color).toResult(new IllegalStateException("King not found")) //should never happen
+      .map(king => {
+        val kingsColor = king.piece.color
+        val kingsPoint = king.point
+
+        board.getOpponets(kingsColor).find({
+          case PieceOnBoard(piece, point) =>
+            val potentialMove = Move(point, kingsPoint)
+            validations.validatePieceCapture(piece, potentialMove).isRight && isTheWayClear(board, potentialMove)
+        })
+      })
+
+
   }
 
-  def validatePieceMove(piece:Piece, move:Move):Result[Unit] = {
-    val invalidMove = pieceMoveInvalid(piece)
 
+  def processMove(board: Board, move:Move, player:Color, playerInCheck:Boolean):Result[MoveResult] = {
     for {
-      _ <- validate(!piece.canMoveOnlyForward || isPieceMovingForward(piece, move), invalidMove)
-      _ <- validate(isMoveRangeValid(piece, move), invalidMove)
-      _ <- move.moveType match {
-        case Vertical => validate(piece.canMoveVertically, invalidMove)
-        case Horizontal => validate(piece.canMoveHorizontally, invalidMove)
-        case Diagonal => validate(piece.canMoveDiagonally, invalidMove)
-        case Special => validate(piece.specialMoveVectors.contains(move.vector), invalidMove)
-      }
-    } yield ()
+      piece <- getPiece(board, move, player)
+      isCpature <- isCapture(board, move, player)
+      _ <- if (isCpature)
+        validations.validatePieceCapture(piece, move)
+      else
+        validations.validatePieceMove(piece, move)
+      _ <- checkObstacles(board, move)
+      updated <- board.move(move).toResult(new IllegalStateException("Piece not found")) //should never happen
+      checkFrom <-checkCheckOn(updated, player)
+      checksBy <- if (checkFrom.isEmpty) checkCheckOn(updated, Colors.opponet(player)) else Right(None)
+      boardToReturn = if (playerInCheck && checkFrom.isDefined) board else updated
+    } yield MoveResult(boardToReturn, checkFrom, checksBy)
   }
 
-  private def isCaptureRangeValid(piece:Piece, move:Move) = {
-    piece.limitedCaptureRange.forall(limit => {
-      move.cleanRange.exists(_ < limit + 1)
-    })
-  }
-
-  def validatePieceCapture(piece:Piece, move:Move):Result[Unit] = {
-    val invalidMove = pieceCaptureInvalid(piece)
-    for {
-      _ <- validate(!piece.canMoveOnlyForward || isPieceMovingForward(piece, move), invalidMove)
-      _ <- validate(isCaptureRangeValid(piece, move), invalidMove)
-      _ <- move.moveType match {
-        case Vertical => validate(piece.capturesVertically, invalidMove)
-        case Horizontal => validate(piece.captureHorizontally, invalidMove)
-        case Diagonal => validate(piece.captureDiagonally, invalidMove)
-        case Special => validate(piece.specialCaptureVectors.contains(move.vector), invalidMove)
-      }
-    } yield ()
-  }
-
-  def checkCheckOn(king:PieceOnBoard):Option[PieceOnBoard] = {
-    val kingsColor = king.piece.color
-    val kingsPoint = king.point
-    val possibleOpponets = (if (kingsColor == White) boardService.getBlackPieces  else boardService.getWhitePieces)
-
-    possibleOpponets.find({
-      case PieceOnBoard(piece, point) =>
-        val potentialMove = Move(point, kingsPoint)
-        validatePieceCapture(piece, potentialMove).isRight && isTheWayClear(potentialMove)
-    })
-  }
 
 
 }
+
+
