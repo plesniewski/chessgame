@@ -54,10 +54,10 @@ class Board(array:BoardArray, whites:Seq[PieceOnBoard], blacks:Seq[PieceOnBoard]
     get(point).nonEmpty
   }
 
-  def getOpponets(color:Color): Seq[PieceOnBoard] = if (color == White) whites else blacks
+  def getOpponets(color:Color): Seq[PieceOnBoard] = if (color == White)  blacks else whites
 
   def getKing(color:Color):Option[PieceOnBoard] = {
-    (if (color== White) whites else blacks).find(_.piece.isInstanceOf[King])
+    (if (color == White) whites else blacks).find(_.piece.isInstanceOf[King])
   }
 
 

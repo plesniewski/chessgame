@@ -24,8 +24,8 @@ class BoardRules {
   private val whites = figures(White).zipWithIndex.map({case (p,i) => PieceOnBoard(p, Point(i, 7))}).toSeq ++
     pawns(White).zipWithIndex.map({case (p,i) => PieceOnBoard(p, Point(i, 6))})
 
-  private val blacks = figures(White).zipWithIndex.map({case (p,i) => PieceOnBoard(p, Point(i, 0))}).toSeq ++
-    pawns(White).zipWithIndex.map({case (p,i) => PieceOnBoard(p, Point(i, 1))})
+  private val blacks = figures(Black).zipWithIndex.map({case (p,i) => PieceOnBoard(p, Point(i, 0))}).toSeq ++
+    pawns(Black).zipWithIndex.map({case (p,i) => PieceOnBoard(p, Point(i, 1))})
 
   private val initialBoardArray: BoardArray =
     Array(

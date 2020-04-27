@@ -1,9 +1,8 @@
 package com.whitehatgaming.chessgame
 
 import com.whitehatgaming.chessgame.board.BoardRules
-import com.whitehatgaming.chessgame.domain.{Colors, Knight, Move, Pawn, PieceOnBoard, Point}
-import com.whitehatgaming.chessgame.game.{MovesService, PiecesMovesValidations}
-import com.whitehatgaming.chessgame.views.GameView
+import com.whitehatgaming.chessgame.domain.{Colors, Move, Pawn, Point}
+import com.whitehatgaming.chessgame.moves.{MovesServiceImpl, PiecesMovesValidations}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
@@ -14,12 +13,12 @@ class ObstaclesTests extends AnyWordSpec with Matchers {
 
   trait WithSimplePawnOnBoard {
     val preBoard = boardRules.emptyBoard
-    val moves = new MovesService(new PiecesMovesValidations)
+    val moves = new MovesServiceImpl(PiecesMovesValidations)
     val board = preBoard.set(Point(2,2), Pawn(Colors.Black))
   }
 
   "Checking if way is clear" should {
-    /*"work for horizontal moves" in new WithSimplePawnOnBoard {
+    "work for horizontal moves" in new WithSimplePawnOnBoard {
       moves.isTheWayClear(board, Move(Point(2, 1), Point(2, 4))) shouldEqual false
       moves.isTheWayClear(board, Move(Point(2, 4), Point(2, 1))) shouldEqual false
       moves.isTheWayClear(board, Move(Point(2, 0), Point(2, 7))) shouldEqual false
@@ -43,19 +42,6 @@ class ObstaclesTests extends AnyWordSpec with Matchers {
       moves.isTheWayClear(board, Move(Point(2, 2), Point(4, 4))) shouldEqual true
       moves.isTheWayClear(board, Move(Point(3, 3), Point(4, 4))) shouldEqual true
       moves.isTheWayClear(board, Move(Point(7, 0), Point(4, 3))) shouldEqual true
-    }*/
-    "draw" in {
-
-      val board = boardRules.initialBoard
-      new GameView().drawBoard(board)
-      assert(true)
-      println
-      new GameView().drawBoard(board.move(Move(Point(1,0), Point(5,5))).get, Some(PieceOnBoard(Knight(Colors.Black), Point(5,5))))
-      println
-
-      new GameView().drawBoard(board.move(Move(Point(1,7), Point(5,2))).get, Some(PieceOnBoard(Knight(Colors.White), Point(5,2))))
-      println
-      println
     }
   }
 

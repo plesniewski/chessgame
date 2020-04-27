@@ -1,38 +1,12 @@
 package com.whitehatgaming.chessgame
 
-import com.whitehatgaming.chessgame.board.BoardRules
 import com.whitehatgaming.chessgame.domain.Colors._
-import com.whitehatgaming.chessgame.domain.{Move, Pawn, Piece, Point}
-import com.whitehatgaming.chessgame.game. PiecesMovesValidations
+import com.whitehatgaming.chessgame.domain.{ Pawn, Point}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
 
-class PawnMovesValidationsTests extends AnyWordSpec with Matchers {
-
-
-  val boardRules = new BoardRules
-  val board = boardRules.initialBoard
-  val validations = new PiecesMovesValidations
-
-  private def testMoveSuccess(piece:Piece, from:Point, to:Point) = {
-    val res = validations.validatePieceMove(piece, Move(from, to))
-    res.isRight shouldEqual true
-  }
-  private def testCaptureSuccess(piece:Piece, from:Point, to:Point) = {
-    val res = validations.validatePieceCapture(piece, Move(from, to))
-    res.isRight shouldEqual true
-  }
-
-  private def testMoveFailure(piece:Piece, from:Point, to:Point) = {
-    val res = validations.validatePieceMove(piece, Move(from, to))
-    res.isLeft shouldEqual true
-  }
-
-  private def testCaptureFailure(piece:Piece, from:Point, to:Point) = {
-    val res = validations.validatePieceCapture(piece, Move(from, to))
-    res.isLeft shouldEqual true
-  }
+class PawnMovesValidationsTests extends AnyWordSpec with Matchers with MoveTestCommons{
 
 
   "moving pawn" should {

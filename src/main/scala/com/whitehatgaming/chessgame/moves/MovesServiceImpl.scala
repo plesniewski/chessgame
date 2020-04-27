@@ -1,5 +1,4 @@
-package com.whitehatgaming.chessgame.game
-
+package com.whitehatgaming.chessgame.moves
 import com.whitehatgaming.chessgame.Result
 import com.whitehatgaming.chessgame.board.Board
 import com.whitehatgaming.chessgame.domain._
@@ -7,11 +6,9 @@ import com.whitehatgaming.chessgame.domain.Colors._
 import com.whitehatgaming.chessgame.domain.MoveTypes._
 import com.whitehatgaming.chessgame.util.ResultUtils._
 
-case class MoveResult(board: Board, inCheckBy:Option[PieceOnBoard], checksBy:Option[PieceOnBoard])
-
-class MovesService(
-             validations: PiecesMovesValidations
-           ) extends MoveErrors {
+class MovesServiceImpl(
+             validations: MovesValidations
+           ) extends MovesService with MoveErrors {
 
   private def anyVerticalObsticles(board:Board, move:Move):Boolean = {
     val ys = Seq(move.from.y, move.to.y).sorted
@@ -23,12 +20,13 @@ class MovesService(
     board.isRowOccupied(move.from.y, xs.head + 1, xs.last - 1)
   }
 
-  def getPiece(board:Board,move:Move, color:Color): Result[Piece] = {
-    board.get(move.from).filter(_.color == color).toResult(MoveError(s"$color piece not found on given position"))
+  private def getPiece(board:Board,move:Move, color:Color): Result[Piece] = {
+    board.get(move.from).filter(_.color == color).toResult(MoveError(s"$color piece not found on given position ${move.from}"))
   }
-  def isCapture(board:Board,move:Move, player:Color):Result[Boolean] = {
+
+  private def isCapture(board:Board,move:Move, player:Color):Result[Boolean] = {
     board.get(move.to) match {
-      case Some(piece) if piece.color == player => Left(MoveError("Cannot take own player"))
+      case Some(piece) if piece.color == player => Left(cannotCaptureOwnPiece)
       case Some(_) => Right(true)
       case None => Right(false)
     }
@@ -57,17 +55,16 @@ class MovesService(
       })
    }
 
-  def checkObstacles(board:Board, move:Move): Result[Unit] = {
-    validate(isTheWayClear(board, move), MoveError("Can't move, something in the way"))
+  private def checkObstacles(board:Board, move:Move): Result[Unit] = {
+    validate(isTheWayClear(board, move), somethingInTheWay)
   }
 
 
-  def checkCheckOn(board:Board,color:Color):Result[Option[PieceOnBoard]] = {
+  private def checkCheckOn(board:Board,color:Color):Result[Option[PieceOnBoard]] = {
     board.getKing(color).toResult(new IllegalStateException("King not found")) //should never happen
       .map(king => {
         val kingsColor = king.piece.color
         val kingsPoint = king.point
-
         board.getOpponets(kingsColor).find({
           case PieceOnBoard(piece, point) =>
             val potentialMove = Move(point, kingsPoint)

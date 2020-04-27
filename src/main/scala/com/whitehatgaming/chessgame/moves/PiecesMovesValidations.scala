@@ -1,4 +1,4 @@
-package com.whitehatgaming.chessgame.game
+package com.whitehatgaming.chessgame.moves
 
 import com.whitehatgaming.chessgame._
 import com.whitehatgaming.chessgame.domain._
@@ -7,7 +7,14 @@ import com.whitehatgaming.chessgame.domain.MoveTypes._
 import com.whitehatgaming.chessgame.util.ResultUtils._
 
 
-class PiecesMovesValidations extends MoveErrors {
+trait MovesValidations {
+
+  def validatePieceMove(piece:Piece, move:Move):Result[Unit]
+  def validatePieceCapture(piece:Piece, move:Move):Result[Unit]
+}
+
+
+object PiecesMovesValidations extends MovesValidations with MoveErrors {
 
   private def isPieceMovingForward(piece:Piece, move:Move) = {
     piece.color == White && move.isUp || piece.color == Black && move.isDown
