@@ -4,36 +4,34 @@ import com.whitehatgaming.chessgame.domain.Colors._
 import com.whitehatgaming.chessgame.domain._
 
 
+class Board(array: BoardArray, whites: Seq[PieceOnBoard], blacks: Seq[PieceOnBoard]) {
 
-
-class Board(array:BoardArray, whites:Seq[PieceOnBoard], blacks:Seq[PieceOnBoard]) {
-
-  def get(point:Point): Option[Piece] = {
+  def get(point: Point): Option[Piece] = {
     array(point.y)(point.x)
   }
 
-  private def getColumn(n:Int): Array[Option[Piece]] = array.map(_(n))
-  private def getRow(n:Int): Array[Option[Piece]] = array(n)
+  private def getColumn(n: Int): Array[Option[Piece]] = array.map(_ (n))
 
-  private def updatedArray(point:Point, value:Option[Piece]): BoardArray = {
+  private def getRow(n: Int): Array[Option[Piece]] = array(n)
+
+  private def updatedArray(point: Point, value: Option[Piece]): BoardArray = {
     val row = array(point.y)
     array.updated(point.y, row.updated(point.x, value))
   }
 
-  def set(point:Point, piece: Piece):Board = {
+  def set(point: Point, piece: Piece): Board = {
     val updated = updatedArray(point, Some(piece))
     val pieceOnBoard = PieceOnBoard(piece, point)
 
     val (updatedWhites, updatedBlacks) =
-    if (piece.color == White) {
-      (whites :+ pieceOnBoard, blacks)
-    } else
-      (whites, blacks :+ pieceOnBoard)
+      if (piece.color == White) {
+        (whites :+ pieceOnBoard, blacks)
+      } else
+        (whites, blacks :+ pieceOnBoard)
     new Board(array = updated, whites = updatedWhites, blacks = updatedBlacks)
   }
 
-
-  def move(move: Move):Option[Board] = {
+  def move(move: Move): Option[Board] = {
     get(move.from).map(piece => {
       val removed = updatedArray(move.from, None)
       val cutWhites = whites.filterNot(p => p.point == move.from || p.point == move.to)
@@ -42,26 +40,24 @@ class Board(array:BoardArray, whites:Seq[PieceOnBoard], blacks:Seq[PieceOnBoard]
     })
   }
 
-  def isColumnOccupied(colNo:Int, from:Int, until:Int):Boolean = {
+  def isColumnOccupied(colNo: Int, from: Int, until: Int): Boolean = {
     getColumn(colNo).slice(from, until).exists(_.nonEmpty)
   }
 
-  def isRowOccupied(rowNo:Int, from:Int, until:Int): Boolean = {
+  def isRowOccupied(rowNo: Int, from: Int, until: Int): Boolean = {
     getRow(rowNo).slice(from, until).exists(_.nonEmpty)
   }
 
-  def isSquareOccupied(point: Point):Boolean = {
+  def isSquareOccupied(point: Point): Boolean = {
     get(point).nonEmpty
   }
 
-  def getOpponets(color:Color): Seq[PieceOnBoard] = if (color == White)  blacks else whites
+  def getOpponets(color: Color): Seq[PieceOnBoard] = if (color == White) blacks else whites
 
-  def getKing(color:Color):Option[PieceOnBoard] = {
+  def getKing(color: Color): Option[PieceOnBoard] = {
     (if (color == White) whites else blacks).find(_.piece.isInstanceOf[King])
   }
 
-
   def getArray: BoardArray = array
-
 
 }

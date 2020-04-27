@@ -1,39 +1,61 @@
 package com.whitehatgaming.chessgame.views
 
-import com.whitehatgaming.chessgame.board.Board
-import com.whitehatgaming.chessgame.domain.{ King, PieceOnBoard, Point}
+import com.whitehatgaming.chessgame.board.{Board, BoardRules}
+import com.whitehatgaming.chessgame.domain.Colors._
+import com.whitehatgaming.chessgame.domain._
+import com.whitehatgaming.chessgame.moves.MoveError
 
-object SimpleTextGameView extends GameView {
-  
-  def drawBoard(board:Board, check:Option[PieceOnBoard] = None): Unit = {
+class SimpleTextGameView(boardRules: BoardRules) extends GameView {
+
+  private def drawSquare(x: Int, y: Int, pieceOpt: Option[Piece], checkOpt: Option[PieceOnBoard], moveOpt: Option[Move]): Unit = {
+    val point = Point(x, y)
+    val c = ((x % 2) + (y % 2)) % 2
+    val defaultCol = if (c == 1) Console.WHITE else Console.BLACK
+    val defaultBg = if (c == 1) Console.BLACK_B else Console.WHITE_B
+
+    val redPiece = checkOpt.exists(_.point == point) || moveOpt.exists(_.from == point)
+    val redBG = (for {
+      piece <- pieceOpt
+      checkBy <- checkOpt
+    } yield piece.isInstanceOf[King] && piece.color != checkBy.piece.color).contains(true) || moveOpt.exists(_.to == point)
+
+    val color = if (redPiece) Console.RED else defaultCol
+    val bgColor = if (redBG) Console.RED_B else if (redPiece) Console.CYAN_B else defaultBg
+
+    print(color + bgColor + pieceOpt.map(p => s" $p ").getOrElse("   ") + Console.RESET)
+  }
+
+  private lazy val lettersLine =
+    Console.WHITE + s"    ${((1 to boardRules.boardColumns).map(_ + 97).map(_.asInstanceOf[Char])).mkString("  ")}" + Console.RESET
+
+  private def rowNumber(y: Int) = {
+    Console.WHITE + s" ${(boardRules.boardRows - y)} " + Console.RESET
+  }
+
+  private def drawPlayer(number: Int, move: Option[Move]): Unit = {
+    println(Console.WHITE + s"Player $number: ${move.map(boardRules.moveString).getOrElse("*")}" + Console.RESET)
+  }
+
+  def drawBoard(board: Board, check: Option[PieceOnBoard] = None, move: Move, currentPlayer: Color, markMove: Boolean = false): Unit = {
+    drawPlayer(2, Some(move).filter(_ => currentPlayer == White))
     val array = board.getArray
-    val lettersString =  Console.WHITE + s"    ${(array.head.indices.map(_ + 97).map(_.asInstanceOf[Char])).mkString("  ")}" + Console.RESET
-    println(lettersString)
+    val letters = lettersLine
+    println(letters)
     for (y <- array.indices) {
-      val numberString =  Console.WHITE + s" ${(array.length - y)} " + Console.RESET
+      val numberString = rowNumber(y)
       val row = array(y)
       print(numberString)
       for (x <- row.indices) {
-        val c = ((x % 2) + (y % 2)) % 2
-        val defaultCol = if (c == 1) Console.WHITE  else Console.BLACK
-        val defaultBg = if (c == 1) Console.BLACK_B else Console.WHITE_B
-        val pieceOpt = array(y)(x)
-        val (col, bg) = (for {
-          piece <- pieceOpt
-          checkBy <- check
-        } yield {
-          if (checkBy.point == Point(x, y))
-            Some((defaultCol, Console.RED_B))
-          else
-          if (piece.isInstanceOf[King] && piece.color != checkBy.piece.color)
-            Some((Console.RED, defaultBg))
-          else None
-        }).flatten.getOrElse((defaultCol, defaultBg))
-        print(col + bg + pieceOpt.map(p => s" $p ").getOrElse("   ") + Console.RESET)
+        drawSquare(x, y, array(y)(x), check, Some(move).filter(_ => markMove))
       }
       println(numberString)
     }
-    println(lettersString)
+    println(letters)
+    drawPlayer(1, Some(move).filter(_ => currentPlayer == Black))
   }
-  
+
+  override def drawErrorMessage(error: MoveError): Unit = {
+    val by = error.pieceOnBoard.map(p => s" by: ${p.piece.shortSign} on ${boardRules.pointString(p.point)}").getOrElse("")
+    println(s"${error.message}$by")
+  }
 }

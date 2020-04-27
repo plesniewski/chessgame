@@ -1,5 +1,7 @@
 package com.whitehatgaming.chessgame
 
-package object domain {
+import com.whitehatgaming.chessgame.domain.Piece
+
+package object board {
   type BoardArray = Array[Array[Option[Piece]]]
 }

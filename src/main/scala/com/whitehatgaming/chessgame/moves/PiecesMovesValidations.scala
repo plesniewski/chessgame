@@ -1,33 +1,23 @@
 package com.whitehatgaming.chessgame.moves
 
-import com.whitehatgaming.chessgame._
-import com.whitehatgaming.chessgame.domain._
 import com.whitehatgaming.chessgame.domain.Colors._
 import com.whitehatgaming.chessgame.domain.MoveTypes._
-import com.whitehatgaming.chessgame.util.ResultUtils._
-
-
-trait MovesValidations {
-
-  def validatePieceMove(piece:Piece, move:Move):Result[Unit]
-  def validatePieceCapture(piece:Piece, move:Move):Result[Unit]
-}
-
+import com.whitehatgaming.chessgame.domain._
 
 object PiecesMovesValidations extends MovesValidations with MoveErrors {
 
-  private def isPieceMovingForward(piece:Piece, move:Move) = {
+  private def isPieceMovingForward(piece: Piece, move: Move) = {
     piece.color == White && move.isUp || piece.color == Black && move.isDown
   }
 
-  private def isMoveRangeValid(piece:Piece, move:Move) = {
+  private def isMoveRangeValid(piece: Piece, move: Move) = {
     piece.limitedMoveRange.forall(limit => {
       move.cleanRange.exists(_ < limit + 1)
     })
   }
 
-  def validatePieceMove(piece:Piece, move:Move):Result[Unit] = {
-    def invalidMove(reason:String = "") = pieceMoveInvalid(piece, reason)
+  def validatePieceMove(piece: Piece, move: Move): MoveResult[Unit] = {
+    def invalidMove(reason: String = "") = pieceMoveInvalid(piece, reason)
 
     for {
       _ <- validate(!piece.canMoveOnlyForward || isPieceMovingForward(piece, move), invalidMove("can move only forward"))
@@ -41,13 +31,13 @@ object PiecesMovesValidations extends MovesValidations with MoveErrors {
     } yield ()
   }
 
-  private def isCaptureRangeValid(piece:Piece, move:Move) = {
+  private def isCaptureRangeValid(piece: Piece, move: Move) = {
     piece.limitedCaptureRange.forall(limit => {
       move.cleanRange.exists(_ < limit + 1)
     })
   }
 
-  def validatePieceCapture(piece:Piece, move:Move):Result[Unit] = {
+  def validatePieceCapture(piece: Piece, move: Move): MoveResult[Unit] = {
     val invalidMove = pieceCaptureInvalid(piece)
     for {
       _ <- validate(!piece.canMoveOnlyForward || isPieceMovingForward(piece, move), invalidMove)

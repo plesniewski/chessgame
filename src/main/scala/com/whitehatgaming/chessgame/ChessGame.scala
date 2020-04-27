@@ -1,7 +1,8 @@
 package com.whitehatgaming.chessgame
 
-import com.whitehatgaming.{UserInput, UserInputFile}
 import com.whitehatgaming.chessgame.modules.{BoardModule, GameModule, MovesModule, ViewModule}
+import com.whitehatgaming.chessgame.moves.GameError
+import com.whitehatgaming.{UserInput, UserInputFile}
 
 
 class GameApp extends GameModule with MovesModule with BoardModule with ViewModule
@@ -25,12 +26,8 @@ object ChessGame {
     app.game.startGame(input, errorHandler)
   }
 
-  private def errorHandler(e: Throwable): Unit = {
-    e match {
-      case error: GameError => println(error.message)
-      case t: Throwable =>
-        println("oopsie !", t)
-    }
+  private def errorHandler(error: GameError): Unit = {
+    println(error.message)
     System.exit(0)
   }
 

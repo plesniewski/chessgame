@@ -1,20 +1,19 @@
 package com.whitehatgaming.chessgame
 
-import com.whitehatgaming.chessgame.board.BoardRules
+import com.whitehatgaming.chessgame.board.{Board, ClassicBoardRules}
 import com.whitehatgaming.chessgame.domain.{Colors, Move, Pawn, Point}
-import com.whitehatgaming.chessgame.moves.{MovesServiceImpl, PiecesMovesValidations}
+import com.whitehatgaming.chessgame.moves.{DefaultMovesService, PiecesMovesValidations}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
 class ObstaclesTests extends AnyWordSpec with Matchers {
 
-  val boardRules = new BoardRules
+  val boardRules: ClassicBoardRules.type = ClassicBoardRules
 
 
   trait WithSimplePawnOnBoard {
-    val preBoard = boardRules.emptyBoard
-    val moves = new MovesServiceImpl(PiecesMovesValidations)
-    val board = preBoard.set(Point(2,2), Pawn(Colors.Black))
+    val board: Board = boardRules.emptyBoard.set(Point(2, 2), Pawn(Colors.Black))
+    val moves = new DefaultMovesService(PiecesMovesValidations)
   }
 
   "Checking if way is clear" should {
