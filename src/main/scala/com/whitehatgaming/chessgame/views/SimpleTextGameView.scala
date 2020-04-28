@@ -39,8 +39,8 @@ class SimpleTextGameView(boardRules: BoardRules) extends GameView {
   }
 
   private def drawPlayer(number: Int, move: Option[Move], check: Boolean): Unit = {
-    val  checkStr = if (check) " Check!" else ""
-    println(Console.WHITE + s"    Player $number: ${move.map(m => boardRules.moveString(m) + checkStr ).getOrElse("*")}" + Console.RESET)
+    val checkStr = if (check) " in check" else ""
+    println(Console.WHITE + s"    Player $number: ${move.map(m => boardRules.moveString(m)).getOrElse(s"*$checkStr")}" + Console.RESET)
   }
 
   def drawSuccess(board: Board, check: Option[PieceOnBoard], move: Move, currentPlayer: Color): Unit = {
