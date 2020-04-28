@@ -1,8 +1,7 @@
-package com.whitehatgaming.chessgame
+package com.whitehatgaming.chessgame.moves
 
 import com.whitehatgaming.chessgame.board.{Board, ClassicBoardRules}
 import com.whitehatgaming.chessgame.domain.{Colors, Move, Pawn, Point}
-import com.whitehatgaming.chessgame.moves.{DefaultMovesService, PiecesMovesValidations}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 

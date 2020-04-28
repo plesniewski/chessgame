@@ -19,9 +19,9 @@ sealed trait MovesHorizontally
 
 sealed trait MovesOneSquare
 
-trait CapturesAllTheWay extends CapturesVertically with CapturesHorizontally with CapturesDiagonally
+sealed trait CapturesAllTheWay extends CapturesVertically with CapturesHorizontally with CapturesDiagonally
 
-trait MovesAllTheWay extends MovesDiagonally with MovesHorizontally with MovesVertically
+sealed trait MovesAllTheWay extends MovesDiagonally with MovesHorizontally with MovesVertically
 
 
 trait Piece {

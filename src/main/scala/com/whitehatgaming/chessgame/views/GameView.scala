@@ -8,9 +8,9 @@ import com.whitehatgaming.chessgame.moves.MoveError
 
 trait GameView {
 
-  def drawBoard(board: Board, check: Option[PieceOnBoard] = None, move: Move, currentPlayer: Color, markMove: Boolean = false): Unit
+  def drawSuccess(board: Board, check: Option[PieceOnBoard] = None, move: Move, currentPlayer: Color): Unit
 
-  def drawErrorMessage(error: MoveError): Unit
+  def drawFailure(board: Board, check: Option[PieceOnBoard] = None, move: Move, currentPlayer: Color, moveError: MoveError): Unit
 }
 
 

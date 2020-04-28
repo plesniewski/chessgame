@@ -44,7 +44,7 @@ class DefaultMovesService(
     }).contains(true)
   }
 
-  def isTheWayClear(board: Board, move: Move): Boolean = {
+  private [moves] def isTheWayClear(board: Board, move: Move): Boolean = {
     move.isOneSquare ||
       (move.moveType match {
         case Vertical => !anyVerticalObsticles(board, move)

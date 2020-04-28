@@ -1,4 +1,4 @@
-package com.whitehatgaming.chessgame
+package com.whitehatgaming.chessgame.moves
 
 import com.whitehatgaming.chessgame.domain.Colors._
 import com.whitehatgaming.chessgame.domain.{Pawn, Point}
@@ -47,25 +47,16 @@ class PawnMovesValidationsTests extends AnyWordSpec with Matchers with MoveTestC
       testMoveFailure(Pawn(Black), Point(1, 1), Point(2, 1))
     }
     "not be able to move diagonally neither forward or back" in {
-      testMoveFailure(Pawn(White).setMoved(), Point(2, 5), Point(3, 4))
-      testMoveFailure(Pawn(White).setMoved(), Point(2, 5), Point(3, 6))
-      testMoveFailure(Pawn(White).setMoved(), Point(2, 5), Point(1, 4))
-      testMoveFailure(Pawn(White).setMoved(), Point(2, 5), Point(1, 6))
-
-      testMoveFailure(Pawn(White), Point(2, 5), Point(3, 4))
-      testMoveFailure(Pawn(White), Point(2, 5), Point(3, 6))
-      testMoveFailure(Pawn(White), Point(2, 5), Point(1, 4))
-      testMoveFailure(Pawn(White), Point(2, 5), Point(1, 6))
-
-      testMoveFailure(Pawn(Black).setMoved(), Point(2, 1), Point(3, 0))
-      testMoveFailure(Pawn(Black).setMoved(), Point(2, 1), Point(3, 2))
-      testMoveFailure(Pawn(Black).setMoved(), Point(2, 1), Point(1, 0))
-      testMoveFailure(Pawn(Black).setMoved(), Point(2, 1), Point(1, 2))
-
-      testMoveFailure(Pawn(Black), Point(2, 1), Point(3, 0))
-      testMoveFailure(Pawn(Black), Point(2, 1), Point(3, 2))
-      testMoveFailure(Pawn(Black), Point(2, 1), Point(1, 0))
-      testMoveFailure(Pawn(Black), Point(2, 1), Point(1, 2))
+      testOfDialonalAnyRangeMoves(Pawn(White), testMoveFailure)
+      testOfDialonalAnyRangeMoves(Pawn(White).setMoved(), testMoveFailure)
+      testOfDialonalAnyRangeMoves(Pawn(Black), testMoveFailure)
+      testOfDialonalAnyRangeMoves(Pawn(White).setMoved(), testMoveFailure)
+    }
+    "not be able to move like knight" in {
+      testClassicKnightVectorMoves(Pawn(White), testMoveFailure)
+      testClassicKnightVectorMoves(Pawn(White).setMoved(), testMoveFailure)
+      testClassicKnightVectorMoves(Pawn(Black), testMoveFailure)
+      testClassicKnightVectorMoves(Pawn(Black).setMoved(), testMoveFailure)
     }
   }
 
@@ -120,7 +111,6 @@ class PawnMovesValidationsTests extends AnyWordSpec with Matchers with MoveTestC
       testCaptureFailure(Pawn(Black).setMoved(), Point(2, 1), Point(1, 0))
       testMoveFailure(Pawn(Black), Point(2, 1), Point(3, 0))
       testMoveFailure(Pawn(Black), Point(2, 1), Point(1, 0))
-
     }
     "not be able to move horizontally" in {
       testCaptureFailure(Pawn(White).setMoved(), Point(2, 5), Point(3, 5))
@@ -132,6 +122,12 @@ class PawnMovesValidationsTests extends AnyWordSpec with Matchers with MoveTestC
       testCaptureFailure(Pawn(Black).setMoved(), Point(1, 1), Point(2, 1))
       testCaptureFailure(Pawn(Black), Point(2, 1), Point(3, 1))
       testCaptureFailure(Pawn(Black), Point(1, 1), Point(2, 1))
+    }
+    "not be able to move like knight" in {
+      testClassicKnightVectorMoves(Pawn(White), testCaptureFailure)
+      testClassicKnightVectorMoves(Pawn(White).setMoved(), testCaptureFailure)
+      testClassicKnightVectorMoves(Pawn(Black), testCaptureFailure)
+      testClassicKnightVectorMoves(Pawn(Black).setMoved(), testCaptureFailure)
     }
   }
 

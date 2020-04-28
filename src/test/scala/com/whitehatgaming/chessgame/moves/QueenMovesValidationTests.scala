@@ -1,4 +1,4 @@
-package com.whitehatgaming.chessgame
+package com.whitehatgaming.chessgame.moves
 
 import com.whitehatgaming.chessgame.domain.Colors._
 import com.whitehatgaming.chessgame.domain.Queen

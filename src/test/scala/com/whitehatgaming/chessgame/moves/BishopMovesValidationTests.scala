@@ -1,4 +1,4 @@
-package com.whitehatgaming.chessgame
+package com.whitehatgaming.chessgame.moves
 
 import com.whitehatgaming.chessgame.domain.Bishop
 import com.whitehatgaming.chessgame.domain.Colors._
@@ -22,6 +22,10 @@ class BishopMovesValidationTests extends AnyWordSpec with Matchers with MoveTest
       testOfDialonalAnyRangeMoves(Bishop(Black), testMoveSuccess)
 
     }
+    "not be able to move like knight" in {
+      testClassicKnightVectorMoves(Bishop(White), testMoveFailure)
+      testClassicKnightVectorMoves(Bishop(Black), testMoveFailure)
+    }
     "not be able to do special crazy stuff" in {
       testOtherVectorsMoves(Bishop(White), testMoveFailure)
       testOtherVectorsMoves(Bishop(Black), testMoveFailure)
@@ -40,6 +44,10 @@ class BishopMovesValidationTests extends AnyWordSpec with Matchers with MoveTest
       testOfDialonalAnyRangeMoves(Bishop(White), testCaptureSuccess)
       testOfDialonalAnyRangeMoves(Bishop(Black), testCaptureSuccess)
 
+    }
+    "not be able to move like knight" in {
+      testClassicKnightVectorMoves(Bishop(White), testCaptureFailure)
+      testClassicKnightVectorMoves(Bishop(Black), testCaptureFailure)
     }
     "not be able to do special crazy stuff" in {
       testOtherVectorsMoves(Bishop(White), testCaptureFailure)

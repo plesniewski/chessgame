@@ -1,4 +1,4 @@
-package com.whitehatgaming.chessgame
+package com.whitehatgaming.chessgame.moves
 
 import com.whitehatgaming.chessgame.domain.Colors._
 import com.whitehatgaming.chessgame.domain.Rook
@@ -33,7 +33,6 @@ class RookMovesValidationTests extends AnyWordSpec with Matchers with MoveTestCo
     "be able to move horizontally" in {
       testOfHorizontalAnyRangeMoves(Rook(White), testCaptureSuccess)
       testOfHorizontalAnyRangeMoves(Rook(Black), testCaptureSuccess)
-
     }
     "be able to move diagonally" in {
       testOfDialonalAnyRangeMoves(Rook(White), testCaptureFailure)

@@ -10,6 +10,8 @@ object ClassicBoardRules extends BoardRules {
 
   def isPointValid(p: Point): Boolean = p.x > -1 && p.y > -1 && p.x < boardColumns && p.y < boardRows
 
+  def isMoveValid(m: Move): Boolean = isPointValid(m.from) && isPointValid(m.to)
+
   private val emptyRow: Array[Option[Piece]] = Array.fill(boardColumns)(None)
 
   private def emptyBoardArray: BoardArray = Array.fill(boardRows)(emptyRow)

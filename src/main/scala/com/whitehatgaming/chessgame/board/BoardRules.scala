@@ -8,7 +8,7 @@ trait BoardRules {
 
   def boardColumns: Int
 
-  def isPointValid(p: Point): Boolean
+  def isMoveValid(p: Move): Boolean
 
   def emptyBoard: Board
 
