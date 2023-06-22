@@ -76,6 +76,7 @@ class DefaultMovesService(
   def processMove(board: Board, move: Move, player: Color, playerInCheck: Boolean): MoveResult[BoardUpdated] = {
     for {
       piece <- getPiece(board, move, player)
+      neverMoved = piece.neverMoved
       isCpature <- isCapture(board, move, player)
       _ <- if (isCpature)
         validations.validatePieceCapture(piece, move)
@@ -86,7 +87,10 @@ class DefaultMovesService(
       checkFrom <- checkCheckOn(updated, player)
       _ <- validate(checkFrom.isEmpty, cantMoveBecauseOfCheck(checkFrom.get)) //get safe here
       checksBy <- if (checkFrom.isEmpty) checkCheckOn(updated, Colors.opponet(player)) else Right(None)
-      boardToReturn = if (playerInCheck && checkFrom.isDefined) board else updated
+      boardToReturn = if (playerInCheck && checkFrom.isDefined) {
+        if (neverMoved) piece.unsetMoved()
+        board
+      } else updated
     } yield BoardUpdated(boardToReturn, checksBy)
   }
 

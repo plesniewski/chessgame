@@ -53,6 +53,11 @@ trait Piece {
     this
   }
 
+  def unsetMoved():Piece = {
+    neverMoved = true
+    this
+  }
+
   def limitedMoveRange: Option[Int] = None
 
   def limitedCaptureRange: Option[Int] = None
